@@ -4,11 +4,10 @@ import "gorm.io/gorm"
 
 type Product struct {
 	gorm.Model
-	ID          int
-	name        string
-	description string
-	price       float64
-	quantity    int
+	Name        string  `form:"name" json:"name" validate:"required"`
+	Description string  `form:"description" json:"description" validate:"required"`
+	Price       float64 `form:"price" json:"price" validate:"required"`
+	Quantity    int     `form:"quantity" json:"quantity" validate:"required"`
 }
 
 // Create Product

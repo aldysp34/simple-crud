@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,12 +26,17 @@ func New() *ProductRepo {
 // Create Products
 func (repository *ProductRepo) CreateProduct(c *gin.Context) {
 	var product models.Product
-	c.BindJSON(&product)
-	err := models.CreateProduct(repository.Db, &product)
+	err := c.ShouldBind(&product)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+	check := models.CreateProduct(repository.Db, &product)
+	if check != nil {
+		fmt.Println(check)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	c.JSON(http.StatusOK, product)
@@ -42,7 +48,7 @@ func (repository *ProductRepo) GetProducts(c *gin.Context) {
 	err := models.GetProducts(repository.Db, &product)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -51,7 +57,7 @@ func (repository *ProductRepo) GetProducts(c *gin.Context) {
 
 // get product by id
 func (repository *ProductRepo) GetProduct(c *gin.Context) {
-	id, _ := strconv.Atoi("id")
+	id, _ := strconv.Atoi(c.Params.ByName("id"))
 	var product models.Product
 	err := models.GetProduct(repository.Db, &product, id)
 
@@ -60,7 +66,7 @@ func (repository *ProductRepo) GetProduct(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -70,7 +76,7 @@ func (repository *ProductRepo) GetProduct(c *gin.Context) {
 // update product
 func (repository *ProductRepo) UpdateProduct(c *gin.Context) {
 	var product models.Product
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, _ := strconv.Atoi(c.Params.ByName("id"))
 	err := models.GetProduct(repository.Db, &product, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -78,13 +84,13 @@ func (repository *ProductRepo) UpdateProduct(c *gin.Context) {
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.BindJSON(&product)
+	c.ShouldBind(&product)
 	err = models.UpdateProduct(repository.Db, &product)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, product)
@@ -93,10 +99,10 @@ func (repository *ProductRepo) UpdateProduct(c *gin.Context) {
 // delete Product
 func (repository *ProductRepo) DeleteProduct(c *gin.Context) {
 	var product models.Product
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, _ := strconv.Atoi(c.Params.ByName("id"))
 	err := models.DeleteProduct(repository.Db, &product, id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
