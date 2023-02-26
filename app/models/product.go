@@ -21,8 +21,8 @@ func CreateProduct(db *gorm.DB, Product *Product) (err error) {
 }
 
 // Get Products
-func GetProducts(db *gorm.DB, Product *[]Product) (err error) {
-	err = db.Find(Product).Error
+func GetProducts(db *gorm.DB, Product *[]Product, limit int, offset int) (err error) {
+	err = db.Limit(limit).Offset(offset).Find(Product).Error
 	if err != nil {
 		return err
 	}

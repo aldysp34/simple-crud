@@ -45,7 +45,15 @@ func (repository *ProductRepo) CreateProduct(c *gin.Context) {
 // get products
 func (repository *ProductRepo) GetProducts(c *gin.Context) {
 	var product []models.Product
-	err := models.GetProducts(repository.Db, &product)
+	limit, _ := strconv.Atoi(c.Request.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(c.Request.URL.Query().Get("offset"))
+	fmt.Println(limit, offset)
+
+	if limit < -1 || offset < -1 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid Limit or Offset"})
+		return
+	}
+	err := models.GetProducts(repository.Db, &product, limit, offset)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
