@@ -24,5 +24,5 @@
 <p>Filtering is only used on /products route</p>
 <p>If you want to use filtering, add "filter" as params</p>
 
-**If you want to use pagination and filtering together, add "limit", "offset", and "filter"**
+#### **If you want to use pagination and filtering together, add "limit", "offset", and "filter"**
 
